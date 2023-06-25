@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Game of Life</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="gameCanvas" width="500" height="500"></canvas>
+
+  <script>
+    // Canvas elem lekérése és inicializálása
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const cellSize = 20; // Cellaméret (pixelben)
+    const rows = canvas.height / cellSize;
+    const columns = canvas.width / cellSize;
+
+    // Kezdőállapot generálása (véletlenszerűen)
+    let grid = createGrid();
+    randomizeGrid();
+
+    // A szimuláció futtatása, sebesség állítása. Minél nagyobb a szám, annál lassab
+    //updateSimulation();
+    setInterval(updateSimulation, 100);
+
+    // Eseményfigyelők hozzáadása a felhasználói interakcióhoz
+    canvas.addEventListener("mousedown", handleCanvasClick);
+
+    // Cellák inicializálása üres állapotba
+    function createGrid() {
+      let grid = new Array(columns);
+      for (let x = 0; x < columns; x++) {
+        grid[x] = new Array(rows);
+        for (let y = 0; y < rows; y++) {
+          grid[x][y] = 0; // 0 - üres, 1 - élő
+        }
+      }
+      return grid;
+    }
+
+
+    // Cellák véletlenszerű inicializálása
+    function randomizeGrid() {
+      for (let x = 1; x < columns - 1; x++) {
+        for (let y = 1; y < rows - 1; y++) {
+          grid[x][y] = Math.floor(Math.random() * 2); // 0 vagy 1
+        }
+      }
+    }
+
+    function drawGrid() {
+      for (let x = 0; x < columns; x++) {
+        for (let y = 0; y < rows; y++) {
+
+          // Cellák rajzolása a vásznon
+          ctx.beginPath();
+          ctx.rect(x * cellSize, y * cellSize, cellSize, cellSize);
+          if (grid[x][y] == 1) {
+            ctx.fillStyle = "black";
+          } else {
+            ctx.fillStyle = "white";
+          }
+          ctx.fill();
+          ctx.stroke();
+        }
+      }
+    }
+
+    // A szimuláció következő lépése
+    function updateSimulation() {
+      let newGrid = createGrid();
+      for (let x = 1; x < columns - 1; x++) {
+        for (let y = 1; y < rows - 1; y++) {
+          let oldState = grid[x][y]; // Régi cella érték: 0: halott, 1: élő
+          let neighbors = countNeighbors(x, y); // Szomszédok száma
+          let newState; // Ezt a változót állítsuk be 0 vagy 1-re lentebb:
+
+          //-----------------------------------------------------------
+          //FELADAT: fejezd be az alábbi if else szerkezetet, hogy a
+          //a game of life szabályokat teljesítse
+
+          if (oldState == 0 && neighbors == 3) {
+            // Ha a korábbi állapot halott (0) volt és
+            // pontosan 3 élő szomszédja van, akkor:
+            newState = 1; // Új cella születik, tehát a cell új állapota 1 lesz.
+          } else if (oldState == 1 && (neighbors == 3 || neighbors == 2)) {
+            newState = 1;
+          } else {
+            newState = 0;
+          }
+
+          //------------------------------------------------------------
+
+          newGrid[x][y] = newState;
+        }
+      }
+      drawGrid();
+      grid = newGrid;
+    }
+
+    // Egy adott cella szomszédainak megszámlálása
+    function countNeighbors(x, y) {
+      let count = 0;
+      count = count + grid[x - 1][y];
+      count = count + grid[x + 1][y];
+      count = count + grid[x][y - 1];
+      count = count + grid[x][y + 1];
+      count = count + grid[x - 1][y - 1];
+      count = count + grid[x + 1][y + 1];
+      count = count + grid[x - 1][y + 1];
+      count = count + grid[x + 1][y - 1];
+      return count;
+    }
+
+    // Kattintás kezelése: cella állapotának megváltoztatása
+    function handleCanvasClick(event) {
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.floor((event.clientX - rect.left) / cellSize);
+      const y = Math.floor((event.clientY - rect.top) / cellSize);
+      grid[x][y] = grid[x][y] ? 0 : 1;
+    }
+  </script>
+</body>
+
+</html>
